@@ -25,7 +25,7 @@ class User{
             }else{
                 return undefined;
             }
-            
+
         }catch(err){
             console.log(err);
             return [];
@@ -60,6 +60,64 @@ class User{
         }
         
     }
+
+    async update(id, email, nome, role){
+        var user = await this.findById(id);
+
+        if(user != undefined){
+            
+            var editUser = {}
+
+            if(email != undefined){
+                if(email != user.email){
+                    var result = await this.findEmail(email);
+                    if(result == false){
+                        editUser.email = email
+                    }else{
+                        return{status: false, err: "O e-mail já está cadastrado"}
+                    }
+                }
+            }
+
+            if(nome != undefined){
+                editUser.nome = nome;
+            }
+
+            if(role != undefined){
+                editUser.role = role;
+            }
+
+            try{
+                await knex.update(editUser).where({id: id}).table("users");
+                return{status: true}
+            }catch{
+                return{status: false, err: err}
+            }
+
+           
+
+        }else{
+            return {status: false, err: "O usuario não existe!"}
+        }
+    }
+
+    async delete(id){
+        var user = await this.findById(id);
+        if(user != undefined){
+
+            try{
+                await knex.delete().where({id: id}).table("users");
+                return {status: true}
+            }catch{
+                return {status: false, err: err} 
+            }
+
+        }else{
+            return {status: false, err: "O usuario não existe."}
+        }
+    }
+
+
 }
 
 module.exports= new User();
